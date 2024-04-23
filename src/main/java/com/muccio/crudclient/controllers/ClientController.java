@@ -2,6 +2,7 @@ package com.muccio.crudclient.controllers;
 
 import com.muccio.crudclient.dtos.ClientDTO;
 import com.muccio.crudclient.services.ClientService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +32,7 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<ClientDTO> insert(@RequestBody ClientDTO client) {
+    public ResponseEntity<ClientDTO> insert(@Valid @RequestBody ClientDTO client) {
         client = service.insert(client);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(client.getId()).toUri();
@@ -39,7 +40,7 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @RequestBody ClientDTO client) {
+    public ResponseEntity<ClientDTO> update(@PathVariable Long id, @Valid @RequestBody ClientDTO client) {
         client = service.update(id, client);
         return ResponseEntity.ok(client);
     }
