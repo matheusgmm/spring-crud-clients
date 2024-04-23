@@ -3,10 +3,14 @@ package com.muccio.crudclient.services;
 import com.muccio.crudclient.dtos.ClientDTO;
 import com.muccio.crudclient.entities.Client;
 import com.muccio.crudclient.repositories.ClientRepository;
+import com.muccio.crudclient.services.exceptions.DatabaseException;
+import com.muccio.crudclient.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -41,6 +45,18 @@ public class ClientService {
         copyDtoToEntity(dto, entity);
         entity = repository.save(entity);
         return new ClientDTO(entity);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Falha na integridade referencial.");
+        }
     }
 
     private void copyDtoToEntity(ClientDTO dto, Client entity) {
